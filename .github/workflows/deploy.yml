@@ -21,8 +21,11 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build and run tests
-        run: mvn clean package --no-transfer-progress
+      - name: Build
+        run: mvn clean package -DskipTests --no-transfer-progress
+
+      - name: Run tests
+        run: mvn test --no-transfer-progress
 
       - name: Upload test reports
         if: failure()
