@@ -209,5 +209,6 @@ This service was built incrementally with Claude (claude.ai) as a coding assista
 - The `emailNote`, `phoneNote`, `nameNote`, `dobNote`, `addressNote` methods in `ScoringService`
 - All unit test scaffolding and test cases for normalisation and scoring
 - The multi-stage Dockerfile and GitHub Actions workflow
-- Genearating README.md file content with proper format
+- Generating test data sample csv for API testing.
+- Creating README.md file content with proper format
 
