@@ -1,0 +1,29 @@
+src/main/java/com/trestle/reconciler/dto/NormalizedPersonRecord.java
+  s_8331f0c8dc1f86::t_39916992168bf9 1-19
+src/main/java/com/trestle/reconciler/dto/ReconcileResponse.java
+  s_8331f0c8dc1f86::t_cbaa882771a791 1-10,13
+  s_8331f0c8dc1f86::t_305665a0576694 12
+src/main/java/com/trestle/reconciler/dto/FieldScore.java
+  s_8331f0c8dc1f86::t_8bd9b161fe794c 1-11
+src/main/java/com/trestle/reconciler/controller/ReconcilerController.java
+  s_8331f0c8dc1f86::t_c70d94f59ea3e6 1-15,17-19
+  s_8331f0c8dc1f86::t_385c7f786ac5d7 16
+src/main/java/com/trestle/reconciler/dto/RawPersonRecord.java
+  s_8331f0c8dc1f86::t_94473b83c5f6d5 1-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "777e3e40c411699399a76138f85b8810198e9a1d",
+  "prompts": {},
+  "sessions": {
+    "s_8331f0c8dc1f86": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8b41e53f-95ab-4d60-8317-db01aad3c0c0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Hardik Dangodra <hardik.dangodra@gupshup.io>"
+    }
+  }
+}
