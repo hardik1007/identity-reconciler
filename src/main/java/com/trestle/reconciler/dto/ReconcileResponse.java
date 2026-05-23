@@ -8,6 +8,16 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class ReconcileResponse {
-    private List<String> matches;
-    private long processingTimeMs;
+    private List<MatchResult> matches;
+    private Stats stats;
+
+    @Data
+    @AllArgsConstructor
+    public static class Stats {
+        private int totalCandidates;
+        private int highConfidence;
+        private int reviewRequired;
+        private int noMatch;
+        private long processingTimeMs;
+    }
 }

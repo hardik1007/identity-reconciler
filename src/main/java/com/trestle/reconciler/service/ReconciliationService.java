@@ -1,6 +1,7 @@
 package com.trestle.reconciler.service;
 
 import com.trestle.reconciler.dto.CandidatePair;
+import com.trestle.reconciler.dto.MatchResult;
 import com.trestle.reconciler.dto.NormalizedPersonRecord;
 import com.trestle.reconciler.dto.RawPersonRecord;
 import com.trestle.reconciler.dto.ReconcileResponse;
@@ -25,6 +26,9 @@ public class ReconciliationService {
     @Autowired
     private CandidatePairFinderService pairFinder;
 
+    @Autowired
+    private ScoringService scoringService;
+
     public ReconcileResponse reconcile(MultipartFile sourceA, MultipartFile sourceB) throws Exception {
         long start = System.currentTimeMillis();
 
@@ -40,7 +44,19 @@ public class ReconciliationService {
 
         Set<CandidatePair> candidates = pairFinder.findCandidates(normA, normB);
 
-        long processingTimeMs = System.currentTimeMillis() - start;
-        return new ReconcileResponse(List.of(), processingTimeMs);
+        List<MatchResult> results = candidates.stream()
+                .map(scoringService::score)
+                .sorted((a, b) -> Double.compare(b.getConfidence(), a.getConfidence()))
+                .toList();
+
+        int highConfidence = (int) results.stream().filter(r -> "HIGH_CONFIDENCE".equals(r.getLabel())).count();
+        int reviewRequired = (int) results.stream().filter(r -> "REVIEW_REQUIRED".equals(r.getLabel())).count();
+        int noMatch        = (int) results.stream().filter(r -> "NO_MATCH".equals(r.getLabel())).count();
+
+        ReconcileResponse.Stats stats = new ReconcileResponse.Stats(
+                candidates.size(), highConfidence, reviewRequired, noMatch,
+                System.currentTimeMillis() - start);
+
+        return new ReconcileResponse(results, stats);
     }
 }
