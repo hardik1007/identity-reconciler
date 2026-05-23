@@ -1,5 +1,8 @@
 package com.trestle.reconciler.service;
 
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 import com.trestle.reconciler.dto.NormalizedPersonRecord;
 import com.trestle.reconciler.dto.RawPersonRecord;
 import org.apache.commons.codec.language.DoubleMetaphone;
@@ -9,11 +12,14 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Service
 public class RecordNormalizerService {
 
     private static final DoubleMetaphone METAPHONE = new DoubleMetaphone();
+    private static final PhoneNumberUtil PHONE_UTIL = PhoneNumberUtil.getInstance();
+    private static final Pattern PLUS_ALIAS = Pattern.compile("\\+[^@]+");
 
     private static final List<DateTimeFormatter> DATE_FORMATS = List.of(
             DateTimeFormatter.ofPattern("yyyy-MM-dd"),
@@ -64,17 +70,33 @@ public class RecordNormalizerService {
         return new String[]{first, last};
     }
 
-    // Strips all non-digit characters — e.g. +91-9876543210 → 919876543210
+    // Numbers with a + prefix are parsed via libphonenumber to E.164.
+    // All others fall back to digit-only stripping.
     private String normalizePhone(String phone) {
         if (phone == null || phone.isBlank()) return null;
+        if (phone.trim().startsWith("+")) {
+            try {
+                Phonenumber.PhoneNumber parsed = PHONE_UTIL.parse(phone.trim(), null);
+                if (PHONE_UTIL.isValidNumber(parsed)) {
+                    return PHONE_UTIL.format(parsed, PhoneNumberUtil.PhoneNumberFormat.E164);
+                }
+            } catch (NumberParseException ignored) {}
+        }
         String digits = phone.replaceAll("[^\\d]", "");
         return digits.isEmpty() ? null : digits;
     }
 
-    // Lowercases and trims the email address
+    // Lowercases and strips the +alias part — john+work@gmail.com → john@gmail.com
     private String normalizeEmail(String email) {
         if (email == null || email.isBlank()) return null;
-        return email.trim().toLowerCase();
+        email = email.trim().toLowerCase();
+        int atIdx = email.indexOf('@');
+        if (atIdx > 0) {
+            String local  = PLUS_ALIAS.matcher(email.substring(0, atIdx)).replaceAll("");
+            String domain = email.substring(atIdx);
+            return local + domain;
+        }
+        return email;
     }
 
     // Tries multiple date formats; returns null if none match
@@ -88,9 +110,19 @@ public class RecordNormalizerService {
         return null;
     }
 
-    // Lowercases and trims the address
+    // Lowercases and expands common address abbreviations
     private String normalizeAddress(String address) {
         if (address == null || address.isBlank()) return null;
-        return address.trim().toLowerCase();
+        return address.trim().toLowerCase()
+                .replace(" st ",  " street ")
+                .replace(" st,",  " street,")
+                .replace(" ave ", " avenue ")
+                .replace(" ave,", " avenue,")
+                .replace(" rd ",  " road ")
+                .replace(" rd,",  " road,")
+                .replace(" blvd ", " boulevard ")
+                .replace(" dr ",  " drive ")
+                .replace(" ln ",  " lane ")
+                .replace(" ct ",  " court ");
     }
 }
