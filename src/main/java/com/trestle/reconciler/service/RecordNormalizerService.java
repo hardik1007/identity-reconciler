@@ -2,6 +2,7 @@ package com.trestle.reconciler.service;
 
 import com.trestle.reconciler.dto.NormalizedPersonRecord;
 import com.trestle.reconciler.dto.RawPersonRecord;
+import org.apache.commons.codec.language.DoubleMetaphone;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -11,6 +12,8 @@ import java.util.List;
 
 @Service
 public class RecordNormalizerService {
+
+    private static final DoubleMetaphone METAPHONE = new DoubleMetaphone();
 
     private static final List<DateTimeFormatter> DATE_FORMATS = List.of(
             DateTimeFormatter.ofPattern("yyyy-MM-dd"),
@@ -27,6 +30,7 @@ public class RecordNormalizerService {
         String[] names = extractNames(raw);
         n.setFirstName(names[0]);
         n.setLastName(names[1]);
+        n.setPhoneticNameKey(METAPHONE.doubleMetaphone(names[0] + " " + names[1]));
 
         n.setNormalizedPhone(normalizePhone(raw.getPhone()));
         n.setNormalizedEmail(normalizeEmail(raw.getEmail()));
