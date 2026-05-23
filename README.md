@@ -144,6 +144,37 @@ Records are only compared if they share at least one blocking key. This avoids c
 
 ---
 
+## Scaling to 200GB
+
+The current design is synchronous and in-memory — it works well for thousands of records but would need the following changes for large-scale or streaming inputs.
+
+### Kafka — streaming ingestion and decoupled pipeline
+
+- Instead of uploading files directly, stream each record as a Kafka message to an `identity.raw-records` topic
+- Each pipeline stage (normalise, block, score) becomes an independent Kafka consumer group
+- The API returns a `jobId` immediately (202 Accepted) and the client polls for results
+- Scoring consumers are stateless — they can scale horizontally without any code change
+
+### Redis — distributed blocking index
+
+- The current in-memory `Map<String, List<>>` inverted index is replaced with Redis Sets
+- Each blocking key maps to a Redis Set of record IDs: `SADD block:{jobId}:{key} recordId`
+- When all source B records are indexed, a pair-emitter scans the Redis index and publishes candidate pairs to Kafka
+- Keys are given a TTL (e.g. 48h) and explicitly cleaned up when the job completes
+
+### OpenSearch — fuzzy name and address matching at scale
+
+- Instead of running Jaro-Winkler on every candidate pair, index normalised records into OpenSearch
+- Use `fuzzy` or `match` queries on name and address fields to find candidates directly — replacing the blocking step entirely for text fields
+- OpenSearch handles typos, phonetic variants, and abbreviation differences natively
+- Results are scored by OpenSearch relevance and can be combined with exact field scores for the final confidence
+
+### What stays the same
+
+`ScoringService`, `RecordNormalizerService`, and `MatchingConfig` require no changes — the scoring logic is stateless and works the same whether called from an HTTP thread or a Kafka consumer.
+
+---
+
 ## Running Locally
 
 **Prerequisites:** Java 21, Maven
@@ -163,3 +194,20 @@ App starts on `http://localhost:8080`.
 - Lombok
 - Apache Commons Text — text similarity
 - springdoc OpenAPI — Swagger UI
+
+
+## Appendix: AI Usage
+
+This service was built incrementally with Claude (claude.ai) as a coding assistant. Here is an honest account of where AI was used, what was accepted, and what was changed.
+
+### What AI generated
+
+- Initial project structure and package layout (controller / service / dto / config)
+- Boilerplate for all service classes with method signatures and field mappings
+- The blocking key strategy — four keys (phone, email, phonetic, dob+phonetic)
+- The graduated DOB scoring tiers (exact=1.0, yr+month=0.5, yr=0.2)
+- The `emailNote`, `phoneNote`, `nameNote`, `dobNote`, `addressNote` methods in `ScoringService`
+- All unit test scaffolding and test cases for normalisation and scoring
+- The multi-stage Dockerfile and GitHub Actions workflow
+- Genearating README.md file content with proper format
+
