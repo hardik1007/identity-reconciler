@@ -1,0 +1,19 @@
+pom.xml
+  s_8331f0c8dc1f86::t_3e75092694f98f 59-78
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "06cb4c33fc34c1e544098b5dbedca742fc5bf7fb",
+  "prompts": {},
+  "sessions": {
+    "s_8331f0c8dc1f86": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8b41e53f-95ab-4d60-8317-db01aad3c0c0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Hardik Dangodra <hardik.dangodra@gupshup.io>"
+    }
+  }
+}
