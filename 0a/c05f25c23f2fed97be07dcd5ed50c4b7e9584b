@@ -1,0 +1,9 @@
+.github/workflows/deploy.yml
+  ai_agent 47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "0ac05f25c23f2fed97be07dcd5ed50c4b7e9584b",
+  "prompts": {}
+}
