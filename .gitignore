@@ -21,6 +21,13 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 
+# Maven
+target/
+HELP.md
+
+# Test data
+test-data/
+
 # IDE
 .idea/
 .vscode/
