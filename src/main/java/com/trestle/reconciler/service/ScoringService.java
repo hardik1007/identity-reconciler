@@ -1,9 +1,11 @@
 package com.trestle.reconciler.service;
 
+import com.trestle.reconciler.config.MatchingConfig;
 import com.trestle.reconciler.dto.CandidatePair;
 import com.trestle.reconciler.dto.FieldScore;
 import com.trestle.reconciler.dto.MatchResult;
 import com.trestle.reconciler.dto.NormalizedPersonRecord;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashMap;
@@ -12,6 +14,9 @@ import java.util.Objects;
 
 @Service
 public class ScoringService {
+
+    @Autowired
+    private MatchingConfig config;
 
     public MatchResult score(CandidatePair pair) {
         NormalizedPersonRecord a = pair.getRecordA();
@@ -40,10 +45,11 @@ public class ScoringService {
         breakdown.put("address", new FieldScore(addressScore,
                 a.getNormalizedAddress() + " vs " + b.getNormalizedAddress()));
 
-        double confidence = breakdown.values().stream()
-                .mapToDouble(FieldScore::getScore)
-                .average()
-                .orElse(0.0);
+        double confidence = (config.getPhoneWeight()   * phoneScore)
+                          + (config.getNameWeight()    * nameScore)
+                          + (config.getDobWeight()     * dobScore)
+                          + (config.getEmailWeight()   * emailScore)
+                          + (config.getAddressWeight() * addressScore);
 
         MatchResult result = new MatchResult();
         result.setPairId(pair.getPairId());
@@ -60,8 +66,8 @@ public class ScoringService {
     }
 
     private String assignLabel(double confidence) {
-        if (confidence >= 0.85) return "HIGH_CONFIDENCE";
-        if (confidence >= 0.60) return "REVIEW_REQUIRED";
+        if (confidence >= config.getHighConfidenceThreshold()) return "HIGH_CONFIDENCE";
+        if (confidence >= config.getReviewRequiredThreshold()) return "REVIEW_REQUIRED";
         return "NO_MATCH";
     }
 
