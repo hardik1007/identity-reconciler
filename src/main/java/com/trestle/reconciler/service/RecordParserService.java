@@ -1,6 +1,7 @@
 package com.trestle.reconciler.service;
 
 import com.trestle.reconciler.dto.RawPersonRecord;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -8,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class RecordParserService {
 
@@ -35,6 +37,7 @@ public class RecordParserService {
             records.add(r);
         }
 
+        log.debug("Parsed {} records", records.size());
         return records;
     }
 

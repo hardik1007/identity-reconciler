@@ -2,6 +2,7 @@ package com.trestle.reconciler.service;
 
 import com.trestle.reconciler.dto.CandidatePair;
 import com.trestle.reconciler.dto.NormalizedPersonRecord;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@Slf4j
 @Service
 public class CandidatePairFinderService {
 
@@ -44,6 +46,8 @@ public class CandidatePairFinderService {
             }
         }
 
+        log.debug("Found {} unique candidate pairs from {} sourceA and {} sourceB records",
+                pairs.size(), sourceA.size(), sourceB.size());
         return pairs;
     }
 }
