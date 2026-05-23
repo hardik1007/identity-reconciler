@@ -1,0 +1,19 @@
+.gitignore
+  s_f035dddbe35655::t_143d316f5825d0 1-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "352589847b37f16096ba09d8f94b81f372a59136",
+  "prompts": {},
+  "sessions": {
+    "s_f035dddbe35655": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eabeeecd-36c7-4125-9f93-38199547c4db",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Hardik Dangodra <hardik.dangodra@gupshup.io>"
+    }
+  }
+}
