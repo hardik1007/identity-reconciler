@@ -8,6 +8,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class ReconcileResponse {
-    private List<String> matches;       // will be replaced with actual response later
+    private List<String> matches;
     private long processingTimeMs;
 }
