@@ -5,6 +5,7 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import com.trestle.reconciler.dto.NormalizedPersonRecord;
 import com.trestle.reconciler.dto.RawPersonRecord;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.language.DoubleMetaphone;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Service
 public class RecordNormalizerService {
 
@@ -83,6 +85,7 @@ public class RecordNormalizerService {
             } catch (NumberParseException ignored) {}
         }
         String digits = phone.replaceAll("[^\\d]", "");
+        log.debug("Phone fallback to digits for: {}", phone);
         return digits.isEmpty() ? null : digits;
     }
 
@@ -107,6 +110,7 @@ public class RecordNormalizerService {
                 return LocalDate.parse(dob.trim(), fmt);
             } catch (DateTimeParseException ignored) {}
         }
+        log.warn("Could not parse DOB '{}' with any known format", dob);
         return null;
     }
 
